@@ -9,12 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@pinecone-database/pinecone": "^9.0.0",
     "cohere-ai": "^8.1.0",
+    "drizzle-orm": "^0.45.2",
     "gpt-tokenizer": "^4.0.0",
     "groq-sdk": "^1.6.0",
+    "nanoid": "^6.0.1",
     "next": "16.3.5",
     "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.20.2",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
@@ -22,8 +26,11 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@types/bootstrap": "^5.2.11",
     "@types/node": "^20",
+    "@types/pdfkit": "^0.17.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^18.0.0",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "postcss": "^8.5.28",

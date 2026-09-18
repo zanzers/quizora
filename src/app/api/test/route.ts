@@ -1,4 +1,7 @@
 
+import { db } from "@/db";
+import { quizzes } from "@/db/schema";
+import { customAlphabet } from "nanoid";
 import { CohereClientV2 } from "cohere-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import Groq from "groq-sdk";
@@ -7,6 +10,21 @@ import { NextResponse } from "next/server";
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const cohere = new CohereClientV2({ token: process.env.COHERE_API_KEY! });
 const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
+
+const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+const segment3 = customAlphabet(alphabet, 3);
+const segment4 = customAlphabet(alphabet, 4);
+
+
+function generateCode(){
+  return `${segment4()}-${segment3()}-${segment4()}`;
+}
+function generateTitle(topic: string){
+  const capitalized = topic.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  return `${capitalized} Quiz`;
+}
+
+
 
 
 export async function POST(request: Request) {
@@ -71,9 +89,21 @@ export async function POST(request: Request) {
     ],
   });
 
+
   const quizData = JSON.parse(response.choices[0].message.content!);
-  return NextResponse.json({
-    ...quizData,
-    sources: [...new Set(relevantChunks.map((m) => m.metadata?.filename))],
-  });
+
+  const code = generateCode();
+  const title = generateTitle(topic);
+
+  await db.insert(quizzes).values({
+    code,
+    title,
+    topic,
+    questions: quizData.questions,
+    sources:[...new Set(relevantChunks.map((m) => m.metadata?.filename))],
+  })
+
+
+
+  return NextResponse.json({ code });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter,useSearchParams  } from "next/navigation";
 
 type Question = {
   type: "multiple_choice" | "fill_in_blank";
@@ -11,6 +11,7 @@ type Question = {
 };
 
 type QuizData = {
+  title: string;
   questions: Question[];
   sources: string[];
 };
@@ -20,18 +21,42 @@ export default function QuizPage() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [selected, setSelected] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const code = searchParams.get("code");
 
-  useEffect(() => {
-    const stored = sessionStorage.getItem("quiz");
-    if (!stored) {
+  useEffect(() =>{
+
+    if(!code){
       router.push("/generate");
       return;
     }
-    setQuiz(JSON.parse(stored));
-  }, [router]);
 
-  if (!quiz) return null;
+    async function loadQuiz(){
+      const res = await fetch(`/api/quiz/${code}`);
+      const data = await res.json();
+
+      if(!res.ok){
+        setError(data.error || "Quiz not found.");
+        return;
+      }
+
+      setQuiz(data);
+    }
+    loadQuiz();
+  }, [code, router]);
+
+  if(error){
+    return(
+      <main className="max-w-xl mx-auto px-4 py-12 text-center">
+        <p className="text-red-600">{error}</p>
+      </main>
+    );
+  }
+
+  if(!quiz) return null;
+
 
   const question = quiz.questions[current];
   const progress = ((current + 1) / quiz.questions.length) * 100;
