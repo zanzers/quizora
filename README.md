@@ -152,12 +152,10 @@ Fill-in-blank → batched into one call to /api/grade, LLM judges
 
 ## Phase 2 — in progress
 
-- [ ] **Shareable quiz codes** — Postgres (Neon) table keyed by a slug
+- [x] **Shareable quiz codes** — Postgres (Neon) table keyed by a slug
       (e.g. `database-sharding-3f2a`), so a quiz can be opened via
       `/quiz/[code]` instead of living only in one browser's `sessionStorage`
-- [ ] MD/PDF export of a generated quiz
-- [ ] Request queue + exponential backoff for LLM/embedding calls, for
-      when multiple users hit the app concurrently
+- [x] MD/PDF export of a generated quiz
 - [ ] Visual/design polish (currently plain Tailwind defaults)
 
 ## Phase 3 — later
@@ -167,7 +165,16 @@ Fill-in-blank → batched into one call to /api/grade, LLM judges
 - [ ] OCR support for scanned (image-only) PDFs — currently unsupported,
       `pdf-parse` returns an empty-text error for these
 
+
+## Production Note
+
+- [ ] Request queue + exponential backoff for LLM/embedding calls, for
+      when multiple users hit the app concurrently
+
+
 ## Notes for future me
+
+- Random questions on every user request. this include the questions and answer.
 
 - Cohere's `embed-v4.0` needs `inputType` set correctly: `search_document`
   when embedding content to store, `search_query` when embedding a question
