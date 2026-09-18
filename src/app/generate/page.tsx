@@ -1,23 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 
 export default function GeneratePage() {
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState(5);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   async function handleGenerate() {
     setLoading(true);
-    const res = await fetch("/api/test", {
+    setError("");
+
+
+    const result = await fetch("/api/test", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topic, count }),
     });
-    const data = await res.json();
-    setResult(data);
+    const data = await result.json();
     setLoading(false);
+
+    if(!result.ok){
+      setError(data.error || "Something went wrong.");
+      return;
+    }
+
+    sessionStorage.setItem("quiz", JSON.stringify(data));
+    router.push("/quiz");
   }
 
   return (
@@ -39,7 +53,7 @@ export default function GeneratePage() {
 
       <button
         onClick={handleGenerate}
-        disabled={loading}
+        disabled={loading || !topic}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
       >
         {loading ? "Generating..." : "Generate quiz"}

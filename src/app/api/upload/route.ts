@@ -2,6 +2,7 @@ import { encode, decode } from "gpt-tokenizer";
 import { NextResponse } from "next/server";
 import { CohereClientV2 } from "cohere-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { PDFParse } from "pdf-parse";
 
 
 const cohere = new CohereClientV2({ token: process.env.COHERE_API_KEY! });
@@ -27,6 +28,19 @@ function chunkText(text: string){
     return chunks;
 }
 
+async function extractText(file: File): Promise<string>{
+    if(file.type === "application/pdf" || file.name.endsWith(".pdf")){
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const parser = new PDFParse({data: buffer});
+       const result = await parser.getText();
+       await parser.destroy();
+       return result.text;
+    }
+
+    return await file.text();
+}
+
+
 
 
 export async function POST(request: Request) {
@@ -43,7 +57,16 @@ export async function POST(request: Request) {
             }
     )}
 
-    const text = await file.text();
+    const text = await extractText(file);
+
+    if(!text || text.trim().length === 0){
+        return NextResponse.json(
+            {error: "Couldn't extract any text from this file."},
+            { status: 400 }
+        );
+    }
+
+
     const chunks = chunkText(text);
     const documentId = crypto.randomUUID();
 
