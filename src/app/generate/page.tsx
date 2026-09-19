@@ -129,7 +129,7 @@ export default function GeneratePage() {
               type="file"
               accept=".md,.pdf,.txt"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              onClick={() => console.log("input clicked")}
+              
               className="hidden"
             />
           </label>

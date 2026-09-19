@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter,useSearchParams  } from "next/navigation";
 
 type Question = {
@@ -16,7 +16,7 @@ type QuizData = {
   sources: string[];
 };
 
-export default function QuizPage() {
+function QuizContent() {
   const [quiz, setQuiz] = useState<QuizData | null>(null);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -120,5 +120,14 @@ export default function QuizPage() {
         {current + 1 === quiz.questions.length ? "Finish" : "Next"}
       </button>
     </main>
+  );
+}
+
+export default function QuizPage(){
+  return(
+    <Suspense fallback={null}>
+      <QuizContent />
+    </Suspense>
+
   );
 }
