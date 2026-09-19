@@ -3,11 +3,24 @@ import { NextResponse } from "next/server";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+function withCors(response: NextResponse){
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type");
+  return response;
+}
+
+
+export async function OPTIONS(){
+  return withCors(new NextResponse(null, {status: 204 }));
+}
+
+
 export async function POST(request: Request) {
   const { items } = await request.json();
 
   if (!items || items.length === 0) {
-    return NextResponse.json({ results: [] });
+    return withCors(NextResponse.json({ results: [] }));
   }
 
   const response = await groq.chat.completions.create({
@@ -41,5 +54,5 @@ ${JSON.stringify(items, null, 2)}`,
   });
 
   const graded = JSON.parse(response.choices[0].message.content!);
-  return NextResponse.json(graded);
+  return withCors(NextResponse.json(graded));
 }
